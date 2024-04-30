@@ -9,32 +9,40 @@ import GoogleStrategy from "passport-google-oauth2" //google auth
 import connectDB from './public/js/db.js'
 import User from './public/js/user.js';
 import Razorpay from 'razorpay';
+import Driver from './public/js/driver.js';
+import Volunteer from './public/js/vol.js';
 
+//===========PORT and SALT ROUNDS FOR HASHING and DB CONNECT ============================================================
 const port = 3000;
 const app = express();
 const saltRounds = 10;
 env.config();
 connectDB();
+//===========PORT and SALT ROUNDS FOR HASHING and DB CONNECT ============================================================
 
+//====================MIDDLEWARE============================================================================
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(express.static("public"))
+//====================MIDDLEWARE============================================================================
 
-//sessions
+//========================HANDLE SESSIONS==============================================================
 app.use(session({
   secret:process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   cookie:{
-    maxAge:1000 * 60  * 60    //one hour length cookie
+    maxAge:1000 //1000 SECOND length cookie
   }
 }))
+//========================HANDLE SESSIONS==============================================================
 
-
+//========================INITIALIZE PASSPORT FOR AUTHRNTIFICATION==============================================================
 app.use(passport.initialize());
 app.use(passport.session())
+//========================INITIALIZE PASSPORT FOR AUTHRNTIFICATION===========================================================
 
-//get routes
+//===========================================GET ROUTES======================================================================
 app.get("/", (req,res)=>{
     res.render("index.ejs");
 
@@ -57,48 +65,71 @@ app.get("/signup_volunteer", (req,res)=>{
 app.get("/login_vol", (req,res)=>{
     res.render("vol_login.ejs")
 })
-//interface
+//interface for driver after passenger books ride
 app.get("/inter", (req,res)=>{
   res.render("inter.ejs")
 })
+//interface for volunteer to accept or reject ride
 app.get("/inter2", (req,res)=>{
   res.render("inter2.ejs")
 })
 
+//forms for information retrieval
 app.get("/forms", (req,res)=>{
   res.render("forms.ejs")
 })
 app.get("/forms2", (req,res)=>{
   res.render("forms2.ejs")
 })
+
+//face recognition page
 app.get("/faceID", (req,res)=>{
   res.render("face_recog.ejs")
 })
-
+//book cab page with map
 app.get("/book_cab", (req,res)=>{
     res.render("book_cab.ejs")
 })
-app.get("/account", (req,res)=>{
-    console.log(req.user);
-    if(req.isAuthenticated()){
-      res.render("acc.ejs")
-    }else{
-      res.redirect("/login_user")
-    }
+
+//driver account test render
+app.get("/drive_acc", (req,res)=>{
+  res.render("acc_driv.ejs")
+})
+//volunteer account page - test render
+app.get("/vol_acc", (req,res)=>{
+  res.render("acc_vol.ejs")
 })
 
+//Route handler for Driver Auth
+app.get('/drive_acc', (req, res) => {
 
+  if (!req.session.driver) {
+      return res.redirect('/login_driver'); // Redirect to login page if not authenticated
+  }
+  res.render('acc_driv.ejs', { driver: req.session.driver });
+});
 
+//Authenticate user
+app.get("/account", (req,res)=>{
+  console.log(req.user);
+  if(req.isAuthenticated()){
+    
+    res.render("acc.ejs", { user: req.user });
+  }else{
+    res.redirect("/login_user")
+  }
+})
+//get route for google authentification with passport
 app.get("/auth/google", passport.authenticate("google", {
   scope:["profile", "email"],
 
 }))
-
 app.get("/auth/google/secrets", passport.authenticate("google", {
   successRedirect:"/account",
   failureRedirect: "/login_user"
 }))
 
+//to redirect to home when logging out
 app.get("/logout", (req,res)=>{
   req.logout((err)=>{
     if (err) console.log(err)
@@ -106,12 +137,9 @@ app.get("/logout", (req,res)=>{
   })
 })
 
-function pause(milliseconds) {
-  return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
-//post routes   -- face
+//get route to user account after face detection
 app.get("/acc_for_face", (req, res) => {
-  // Access the userName from the query parameters for GET requests
+  
   console.log("acc_for_face route handler called");
   const userName = req.query.userName;
   console.log(userName);
@@ -124,13 +152,116 @@ app.get("/acc_for_face", (req, res) => {
   }
 
 });
+//interface when waiting for taxi
 app.get("/user_inter",(req,res) =>{
  res.render("user_inter.ejs")
 })
-//payment with razorpay
+//payment process middle page
 app.get("/payment", (req,res)=>{
   res.render("payment.ejs")
 })
+// Route handler to serve Volunteer account page
+app.get('/vol_acc', (req, res) => {
+  
+  if (!req.session.vol) {
+      return res.redirect('/login_vol'); 
+  }
+  console.log(req.session.vol);
+  res.render('acc_vol.ejs', { vol: req.session.vol });
+});
+
+
+//===========================================GET ROUTES======================================================================
+
+
+
+
+//==========================================POST ROUTES======================================================================
+// app.post("/login_driver", passport.authenticate("local", {
+//   successRedirect:"/drive_acc",
+//   failureRedirect: "/login_driver"
+// }))
+// app.post("/login_vol", passport.authenticate("local", {
+//   successRedirect:"/vol_acc",
+//   failureRedirect: "/login_vol"
+// }))
+
+// Route handler for driver login
+app.post('/login_driver', async (req, res) => {
+  try {
+      // Extract login information from request body
+      const { email, password } = req.body;
+
+      // Find the driver by email
+      const driver = await Driver.findOne({ email });
+      if (!driver) {
+          return res.status(401).json({ message: 'Invalid email' });
+      }
+
+      // Compare the provided password with the hashed password in the database
+      const isPasswordValid = await bcrypt.compare(password, driver.password);
+      if (!isPasswordValid) {
+          return res.status(401).json({ message: 'Invalid email or password' });
+      }
+
+      // Store driver information in the session
+      req.session.driver = {
+          id: driver._id,
+          email: driver.email,
+          firstName: driver.firstName,
+          lastName: driver.lastName
+      };
+
+      // Redirect to driver account page or send success response
+      res.redirect('/drive_acc');
+  } catch (error) {
+      // Handle errors
+      console.error('Error in driver login:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Route handler for driver signup
+app.post('/signup_driver', async (req, res) => {
+  try {
+      // Extract signup information from request body
+      const { email, firstName, lastName, password } = req.body;
+
+      // Check if the email is already registered
+      const existingDriver = await Driver.findOne({ email });
+      if (existingDriver) {
+          return res.status(400).json({ message: 'Email is already registered' });
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create a new driver instance
+      const newDriver = new Driver({
+          email,
+          firstName,
+          lastName,
+          password: hashedPassword // Store the hashed password
+      });
+
+      // Save the driver to the database
+      await newDriver.save();
+
+      // Return success response
+      res.redirect("/drive_acc");
+      // res.status(201).json({ message: 'Driver signed up successfully' });
+      
+  } catch (error) {
+      // Handle errors
+      console.error('Error in driver signup:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+
+//payment with razorpay ==================================================================================
+
 const instance = new Razorpay({
   key_id: 'rzp_test_9wbgKGqZ4eqQ3L',
   key_secret: 'Io8I1o8ZJQO7KXxi52In8Gyh'
@@ -155,22 +286,23 @@ app.post("/create-order", (req, res) => {
       res.json({ orderId: order.id });
   });
 });
+//payment with razorpay ==================================================================================
+
+//face-detection for user=================================================================================
 app.post('/acc-for-face', (req, res) => {
   const name = req.body.userName;
   console.log(name);
   if (name === "Alan") {
-    pause(3000).then(() => {
-      console.log("Execution paused for 3 seconds");
-      // Code to execute after the pause
+    
       res.json({ redirectUrl: '/acc_for_face', userName: name }); // Include userName in the response
-    });
+  
     // Redirect to '/acc_for_face' route
      
   } else {
     res.json({ success: false, message: "unidentified" }); // Respond with JSON
   }
 });
-//--face
+//face-detection for user=================================================================================
 
 
 
@@ -212,8 +344,6 @@ app.post("/signup_user", async (req, res) => {
     res.status(500).send("Error creating user");
   }
 });
-
-
 
 
 app.post("/login_user", passport.authenticate("local", {
@@ -286,13 +416,6 @@ passport.deserializeUser((user, cb)=>{
   cb(null, user);
 })
 
-
-app.listen(port, ()=>{
-    console.log(`Server running on port ${port}`);
-})
-
-import  Volunteer from './public/js/vol.js';
-
 // Add a route to handle volunteer signup POST request
 app.post("/signup_volunteer", async (req, res) => {
   const { email, firstName, lastName, password } = req.body;
@@ -319,57 +442,51 @@ app.post("/signup_volunteer", async (req, res) => {
       console.log('Volunteer created:', newUser);
 
       // Redirect to account page or any other page as needed
-      res.redirect("/account");
+      res.redirect("/vol_acc");
   } catch (error) {
       console.error('Error creating volunteer:', error);
       res.status(500).send("Error creating volunteer");
   }
 });
-
-
-
-import Driver from './public/js/driver.js';
-
-// Add a route to handle driver signup POST request
-app.post("/signup_driver", async (req, res) => {
-  const { email, firstName, lastName, password } = req.body; 
-
+app.post('/login_vol', async (req, res) => {
   try {
-      // Check if the driver already exists
-      const hashedPassword = await bcrypt.hash(password, saltRounds); 
-      const existingDriver = await Driver.findOne({ email: email });
-      if (existingDriver) {
-          return res.send("Driver already exists");
+      // Extract login information from request body
+      const { email, password } = req.body;
+
+      // Find the driver by email
+      const vol = await Volunteer.findOne({ email });
+      if (!vol) {
+          return res.status(401).json({ message: 'Invalid email' });
       }
 
-      // Create a new driver document
-      const newDriver = new Driver({
-          email: email,
-          firstName: firstName,
-          lastName: lastName,
-          password: hashedPassword, 
-      });
+      // Compare the provided password with the hashed password in the database
+      const isPasswordValid = await bcrypt.compare(password, vol.password);
+      if (!isPasswordValid) {
+          return res.status(401).json({ message: 'Invalid email or password' });
+      }
 
-      // Save the new driver to the database
-      await newDriver.save();
+      // Store driver information in the session
+      req.session.driver = {
+          id: vol._id,
+          email: vol.email,
+          firstName: vol.firstName,
+          lastName: vol.lastName
+      };
 
-      console.log('Driver created:', newDriver);
-
-      // Redirect to account page or any other page as needed
-      res.redirect("/account");
+      // Redirect to driver account page or send success response
+      res.redirect('/vol_acc');
   } catch (error) {
-      console.error('Error creating driver:', error);
-      res.status(500).send("Error creating driver");
+      // Handle errors
+      console.error('Error in volunteer login:', error);
+      res.status(500).json({ message: 'Internal server error' });
   }
 });
 
+//=====================================LISTEN================================================
 
-
-
-
-
-
-
+app.listen(port, ()=>{
+  console.log(`Server running on port ${port}`);
+})
 
 
 // @aditya-s-nair

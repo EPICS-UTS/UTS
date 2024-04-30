@@ -77,7 +77,13 @@
                   
                 </div>
                 <div class="card-body">
-                  <p class="mb-0"><strong class="pr-1">USER ID:</strong>321000001</p>
+                  <p class="mb-0"><strong class="pr-1">USER ID:</strong>
+                    <% if (locals.user && user.firstName && user.lastName) { %>
+                      <%= user.firstName %> <%= user.lastName %>
+                    <% } else { %>
+                      <%= user.email %>
+                    <% } %>
+                  </p>                  
                   <p class="mb-0"><strong class="pr-1">Age:</strong>65</p>
                   <p class="mb-0"><strong class="pr-1">DOB:</strong>3/11/1965</p>
                   <button id="bookcabbutton">Book a Cab</button>
@@ -119,7 +125,10 @@
                     <tr>
                       <th width="30%">Contact Number:</th>
                       <td width="2%">:</td>
-                      <td>+917685356712</td>
+                      <td><% if(locals.user){ %>
+                        <%= user.phone %>
+                      <%}%>
+                      </td>
                     </tr>
                     <tr>
                         <th width="30%">Specially Challenged?</th>

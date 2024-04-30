@@ -47,7 +47,7 @@
 <body>
     <div class="payment-container">
         <h2>Payment Details</h2>
-        <div class="amount-label">Amount to be paid: ₹10</div>
+        <div class="amount-label">Amount to be paid: ₹400</div>
         <br><br>
         <button id="pay-button">Pay with Razorpay</button>
     </div>
@@ -66,14 +66,14 @@
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({
-                    amount: 1000 // Example amount in smallest currency unit (1000 ₹)
+                    amount: 40000 // Example amount in smallest currency unit (1000 ₹)
                 }),
                 success: function(response) {
                     orderId = response.orderId;
 
                     var options = {
                         key: 'rzp_test_9wbgKGqZ4eqQ3L', // Enter your Razorpay Key ID
-                        amount: 1000, // Example amount in smallest currency unit (1000 ₹)
+                        amount: 40000, // Example amount in smallest currency unit (1000 ₹)
                         currency: 'INR',
                         name: 'United Transit',
                         description: 'Test Transaction',
