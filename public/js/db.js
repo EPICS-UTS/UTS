@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-
-const uri = "mongodb+srv://itsarihant18:ZyhbMUCmjSWshHNQ@cluster0.gs6mye7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+import { mongoDBUrl } from './config.js';
+const uri = mongoDBUrl;
 
 async function connectDB() {
   try {

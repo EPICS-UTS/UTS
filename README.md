@@ -28,7 +28,8 @@ Make sure you have the following installed on your machine:
 3. **Add config.js inside 'public/js/' and write the following** 
     ```bash
     const myToken = 'yourTokenFromMapBox';
-    export { myToken };
+    const mongoDBUrl = "yourAtlasConnectionString";
+    export { myToken, mongoDBUrl };
 
 4. **Make a .env  file put these information**
 
