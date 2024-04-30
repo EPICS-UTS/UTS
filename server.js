@@ -8,7 +8,7 @@ import env from "dotenv";
 import GoogleStrategy from "passport-google-oauth2" //google auth
 import connectDB from './public/js/db.js'
 import User from './public/js/user.js';
-
+import Razorpay from 'razorpay';
 
 const port = 3000;
 const app = express();
@@ -124,8 +124,37 @@ app.get("/acc_for_face", (req, res) => {
   }
 
 });
+app.get("/user_inter",(req,res) =>{
+ res.render("user_inter.ejs")
+})
+//payment with razorpay
+app.get("/payment", (req,res)=>{
+  res.render("payment.ejs")
+})
+const instance = new Razorpay({
+  key_id: 'rzp_test_9wbgKGqZ4eqQ3L',
+  key_secret: 'Io8I1o8ZJQO7KXxi52In8Gyh'
+});
 
+app.post("/create-order", (req, res) => {
+  const amount = req.body.amount;
 
+  // Create order with Razorpay
+  const options = {
+      amount: amount, // amount in the smallest currency unit
+      currency: 'INR',
+      receipt: 'order_rcptid_11'
+  };
+
+  instance.orders.create(options, function(err, order) {
+      if (err) {
+          console.error(err);
+          return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      console.log(order);
+      res.json({ orderId: order.id });
+  });
+});
 app.post('/acc-for-face', (req, res) => {
   const name = req.body.userName;
   console.log(name);
@@ -333,6 +362,10 @@ app.post("/signup_driver", async (req, res) => {
       res.status(500).send("Error creating driver");
   }
 });
+
+
+
+
 
 
 
