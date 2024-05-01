@@ -145,10 +145,10 @@ app.get("/acc_for_face", (req, res) => {
   console.log(userName);
   if (userName) {
     // Render the template with the userName variable
-    res.render("acc.ejs", { userName: userName });
+    res.render("acc.ejs", { user: userName });
   } else {
     // Send an error response or handle the situation accordingly
-    res.render("acc.ejs", { userName: "Alan Saji" });
+    res.render("acc.ejs", { user: "Alan Saji" });
   }
 
 });
@@ -170,7 +170,9 @@ app.get('/vol_acc', (req, res) => {
   res.render('acc_vol.ejs', { vol: req.session.vol });
 });
 
-
+app.get("/cars", (req,res)=>{
+  res.render("cars.ejs")
+})
 //===========================================GET ROUTES======================================================================
 
 
