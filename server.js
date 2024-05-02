@@ -170,9 +170,6 @@ app.get('/vol_acc', (req, res) => {
   res.render('acc_vol.ejs', { vol: req.session.vol });
 });
 
-app.get("/cars", (req,res)=>{
-  res.render("cars.ejs")
-})
 //===========================================GET ROUTES======================================================================
 
 

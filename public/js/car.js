@@ -4,7 +4,7 @@ import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import * as THREE from 'three';
 
 const loader = new GLTFLoader();
-const fontLoader = new FontLoader(); // Create a FontLoader instance
+const fontLoader = new FontLoader(); 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
@@ -14,7 +14,7 @@ renderer.setClearColor(0xFFD700);
 carDiv.appendChild(renderer.domElement);
 
 // Add a light source
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
 scene.add(ambientLight);
 
 // Add a directional light
@@ -45,7 +45,7 @@ loader.load('3D/md_car/md.gltf', function(gltf) {
     model_md = gltf.scene;
 
     // Scale the model
-    model_md.scale.set(1.2, 1.2, 1.2); // Scale down by a factor of 1000
+    model_md.scale.set(1.2, 1.2, 1.2); 
     model_md.position.x = 0;
     model_md.position.y = -0.5;
     scene.add(model_md);
@@ -57,7 +57,7 @@ loader.load('3D/lg_car/lg.gltf', function(gltf) {
     model_lg = gltf.scene;
 
     // Scale the model
-    model_lg.scale.set(1.2, 1.2, 1.2); // Scale down by a factor of 1000
+    model_lg.scale.set(1.2, 1.2, 1.2);
     model_lg.position.x = 6;
     model_lg.position.z = -7;
     model_lg.position.y = -2;
@@ -70,12 +70,12 @@ loader.load('3D/lg_car/lg.gltf', function(gltf) {
 camera.position.x = 4;
 camera.position.z = 5;
 camera.position.y = 0;
-camera.lookAt(0, 0, 0); // Look at the center of the scene
+camera.lookAt(0, 0, 0); 
 
 // Load the font
 fontLoader.load('fonts/helvet.typeface.json', function(font) {
     // Create text geometry
-    const textGeometry = new TextGeometry('Ride Availability', {
+    const textGeometry = new TextGeometry('Ride Availability.......', {
         font: font,
         size: 0.5, 
         depth: 0.05, 
@@ -84,13 +84,13 @@ fontLoader.load('fonts/helvet.typeface.json', function(font) {
     });
 
     // Create material for the text
-    const textMaterial = new THREE.MeshBasicMaterial({ color: 0x00000 }); // Specify color here
+    const textMaterial = new THREE.MeshBasicMaterial({ color: 0x00000 }); 
 
     // Create mesh for the text
     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
     // Position the text
-    textMesh.position.set(0, 1, 2); // Adjust position as needed
+    textMesh.position.set(0, 1, 2); 
 
     // Add text mesh to the scene
     scene.add(textMesh);
