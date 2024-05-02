@@ -65,6 +65,9 @@ app.get("/signup_volunteer", (req,res)=>{
 app.get("/login_vol", (req,res)=>{
     res.render("vol_login.ejs")
 })
+app.get("/career", (req,res)=>{
+  res.render("career.ejs");
+})
 //interface for driver after passenger books ride
 app.get("/inter", (req,res)=>{
   res.render("inter.ejs")
@@ -310,7 +313,7 @@ app.post("/signup_user", async (req, res) => {
   const pass = req.body.password;
   const fname = req.body.firstName;
   const lname = req.body.lastName;
-  const email = req.body.email; // Assuming email is provided in the form
+  const email = req.body.email;
 
   try {
     // Hash the password
@@ -395,7 +398,7 @@ passport.use("google", new GoogleStrategy({
       // User does not exist, create a new user
       const newUser = await User.create({
         email: profile.email,
-        password: "google" // Assuming "google" as the default password for Google-authenticated users
+        password: "google" 
       });
       return cb(null, newUser);
     } else {

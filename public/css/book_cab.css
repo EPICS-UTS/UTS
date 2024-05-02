@@ -8,8 +8,9 @@ body {
 }
   
 nav {
-    background-color: #ffe207;
+    background-color: #000000;
     overflow: hidden;
+    border: solid white 1px;
   }
   
 ul {

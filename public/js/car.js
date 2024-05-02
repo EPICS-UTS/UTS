@@ -8,11 +8,12 @@ const fontLoader = new FontLoader();
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
-const carDiv = document.getElementById("car");
+
+const carElement = document.querySelector(".car");
 renderer.setSize(window.innerWidth - 10, window.innerHeight);
 renderer.setClearColor(0xFFD700);
-carDiv.appendChild(renderer.domElement);
 
+carElement.appendChild(renderer.domElement);
 // Add a light source
 const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
 scene.add(ambientLight);
@@ -75,7 +76,7 @@ camera.lookAt(0, 0, 0);
 // Load the font
 fontLoader.load('fonts/helvet.typeface.json', function(font) {
     // Create text geometry
-    const textGeometry = new TextGeometry('Ride Availability.......', {
+    const textGeometry = new TextGeometry('Vehicle Gallery', {
         font: font,
         size: 0.5, 
         depth: 0.05, 
@@ -90,7 +91,9 @@ fontLoader.load('fonts/helvet.typeface.json', function(font) {
     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
     // Position the text
-    textMesh.position.set(0, 1, 2); 
+    textMesh.position.set(-1.3, 2.5, 2); 
+    textMesh.rotation.y = 0.6;
+    textMesh.rotation.z = -0.03;
 
     // Add text mesh to the scene
     scene.add(textMesh);
