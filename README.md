@@ -18,7 +18,7 @@ Make sure you have the following installed on your machine:
 
    ```bash
    cd your-project/
-   git clone https://github.com/Alansaji2003/uts-node.git
+   git clone https://github.com/EPICS-UTS/UTS.git
    cd UTS/
    
 

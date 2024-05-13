@@ -76,10 +76,10 @@ camera.lookAt(0, 0, 0);
 // Load the font
 fontLoader.load('fonts/helvet.typeface.json', function(font) {
     // Create text geometry
-    const textGeometry = new TextGeometry('Vehicle Gallery', {
+    const textGeometry = new TextGeometry('Transport Options', {
         font: font,
         size: 0.5, 
-        depth: 0.05, 
+        depth: 0.01, 
         curveSegments: 10,
         bevelEnabled: false 
     });
